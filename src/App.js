@@ -1,62 +1,76 @@
+import React, { useState } from "react";
+import "./App.css";
+
 export const App = () => {
-	const currentYear = new Date().getFullYear();
+	const [firstOperand, setFirstOperand] = useState("");
+	const [secondOperand, setSecondOperand] = useState("");
+	const [operator, setOperator] = useState("");
+	const [isResult, setIsResult] = useState(false);
 
-	const createElement = (tag, attributes, children) => {
-		const element = document.createElement(tag);
-
-		for (const key in attributes) {
-			if (Object.hasOwnProperty.call(attributes, key)) {
-				element.setAttribute(key, attributes[key]);
-			}
-		}
-
-		if (children) {
-			if (Array.isArray(children)) {
-				children.forEach((child) => {
-					if (typeof child === "string") {
-						element.appendChild(document.createTextNode(child));
-					} else {
-						element.appendChild(child);
-					}
-				});
-			} else if (typeof children === "string") {
-				element.appendChild(document.createTextNode(children));
+	const handleCountClick = (count) => {
+		if (isResult) {
+			setFirstOperand(count);
+			setIsResult(false);
+		} else {
+			if (operator) {
+				setSecondOperand(secondOperand + count);
 			} else {
-				element.appendChild(children);
+				setFirstOperand(firstOperand + count);
 			}
 		}
-
-		return element;
 	};
 
-	const appDiv = createElement("div", { class: "App" });
+	const handleOperatorClick = (click) => {
+		if (click === "C") {
+			setFirstOperand("");
+			setOperator("");
+			setSecondOperand("");
+			setIsResult(false);
+		} else if (click === "=") {
+			if (secondOperand) {
+				let result;
+				switch (operator) {
+					case "+":
+						result =
+							parseInt(firstOperand) + parseInt(secondOperand);
+						break;
+					case "-":
+						result =
+							parseInt(firstOperand) - parseInt(secondOperand);
+						break;
+					default:
+						break;
+				}
+				setFirstOperand(result.toString());
+				setOperator("");
+				setSecondOperand("");
+				setIsResult(true);
+			}
+		} else {
+			setOperator(click);
+			setIsResult(false);
+		}
+	};
 
-	const header = createElement("header", { class: "App-header" });
-
-	const paragraph = createElement("p", null, [
-		"Edit ",
-		createElement("code", null, "src/App.js"),
-		" and save to reload 2.",
-	]);
-
-	const link = createElement(
-		"a",
-		{
-			class: "App-link",
-			href: "https://reactjs.org",
-			target: "_blank",
-			rel: "noopener noreferrer",
-		},
-		"Learn React"
+	return (
+		<div className="calculator">
+			<div className={`display ${isResult ? "result" : ""}`}>
+				{firstOperand} {operator} {secondOperand}
+			</div>
+			<div className="buttons">
+				{[...Array(10).keys()].map((count) => (
+					<button
+						key={count}
+						onClick={() => handleCountClick(count.toString())}
+					>
+						{count}
+					</button>
+				))}
+				<button onClick={() => handleOperatorClick("+")}>+</button>
+				<button onClick={() => handleOperatorClick("-")}>-</button>
+				<button onClick={() => handleOperatorClick("=")}>=</button>
+				<button onClick={() => handleOperatorClick("C")}>C</button>
+			</div>
+		</div>
 	);
-
-	const yearParagraph = createElement("p", null, currentYear);
-
-	[paragraph, link, yearParagraph].forEach((child) => {
-		header.appendChild(child);
-	});
-
-	appDiv.appendChild(header);
-
-	return appDiv;
 };
